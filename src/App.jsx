@@ -27,6 +27,10 @@ const ICONOS = {
   ),
   escudo: <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />,
   flecha: <path d="M12 5v14M6 13l6 6 6-6" />,
+  check: <path d="M5 12.5l4.5 4.5L19 7" />,
+  cerrar: <path d="M6 6l12 12M18 6L6 18" />,
+  reiniciar: <path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4" />,
+  externo: <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
 }
 
 function Icono({ nombre }) {
@@ -104,7 +108,98 @@ const POSICIONES = {
   d: { x: 340, y: 285 },
 }
 
-/* ---------- Animación al hacer scroll ---------- */
+const NAV = [
+  ['triada', 'Pilares'],
+  ['fallas', 'Fallas'],
+  ['simulador', 'Equilibrio'],
+  ['quiz', 'Quiz'],
+  ['casos', 'Casos'],
+  ['glosario', 'Glosario'],
+  ['fuentes', 'Fuentes'],
+]
+
+const PREGUNTAS = [
+  {
+    caso: 'Un empleado descontento publica en internet la lista completa de clientes de la empresa.',
+    correcta: 'c',
+    explicacion:
+      'Personas no autorizadas accedieron a datos que debían ser privados: se rompió la confidencialidad.',
+  },
+  {
+    caso: 'Un ataque de ransomware cifra los servidores y la tienda online deja de funcionar durante un día.',
+    correcta: 'd',
+    explicacion:
+      'Los datos siguen existiendo, pero nadie puede usarlos cuando los necesita: se afectó la disponibilidad.',
+  },
+  {
+    caso: 'Alguien modifica en la base de datos las notas de un alumno sin tener autorización.',
+    correcta: 'i',
+    explicacion:
+      'La información fue alterada y ya no es exacta ni confiable: se violó la integridad.',
+  },
+]
+
+const CASOS = [
+  {
+    anio: '2010',
+    titulo: 'Stuxnet',
+    pilar: 'i',
+    texto:
+      'Un gusano informático manipuló el control de centrifugadoras industriales mientras los paneles mostraban valores normales. Los datos que veían los operadores ya no eran confiables.',
+  },
+  {
+    anio: '2016',
+    titulo: 'Ataque a Dyn',
+    pilar: 'd',
+    texto:
+      'Un ataque DDoS con una botnet de dispositivos conectados afectó a un proveedor de DNS y dejó inaccesibles servicios muy usados, como Twitter, Netflix o Reddit, en gran parte de EE. UU.',
+  },
+  {
+    anio: '2017',
+    titulo: 'Equifax',
+    pilar: 'c',
+    texto:
+      'Se expuso información personal de alrededor de 147 millones de personas, a raíz de una vulnerabilidad que no había sido corregida a tiempo.',
+  },
+  {
+    anio: '2021',
+    titulo: 'Colonial Pipeline',
+    pilar: 'd',
+    texto:
+      'Un ataque de ransomware obligó a detener la operación de un oleoducto clave y afectó el suministro de combustible en la costa este de EE. UU.',
+  },
+]
+
+const GLOSARIO = [
+  ['Cifrado', 'Proceso que convierte la información en un código ilegible para quien no tenga la clave. Protege la confidencialidad.'],
+  ['Hash', 'Huella digital de un archivo o dato. Si el contenido cambia aunque sea un poco, el hash cambia: sirve para verificar integridad.'],
+  ['MFA', 'Autenticación multifactor: pedir dos o más pruebas de identidad, como contraseña y código en el celular.'],
+  ['DDoS', 'Ataque que satura un servicio con tráfico masivo desde muchos equipos para dejarlo inaccesible.'],
+  ['Phishing', 'Engaño, normalmente por correo o mensaje, para que la víctima entregue contraseñas o datos personales.'],
+  ['Ransomware', 'Software malicioso que cifra los archivos de la víctima y exige un pago para devolver el acceso.'],
+  ['Backup', 'Copia de seguridad de la información, guardada en otro lugar, para poder recuperarla si algo falla.'],
+  ['Firewall', 'Barrera que filtra el tráfico de red y decide qué conexiones se permiten y cuáles se bloquean.'],
+]
+
+const FUENTES = [
+  {
+    nombre: 'ISO/IEC 27001',
+    desc: 'Estándar internacional para sistemas de gestión de seguridad de la información.',
+    url: 'https://www.iso.org/standard/27001',
+  },
+  {
+    nombre: 'NIST Cybersecurity Framework',
+    desc: 'Marco de buenas prácticas para gestionar y reducir riesgos de ciberseguridad.',
+    url: 'https://www.nist.gov/cyberframework',
+  },
+  {
+    nombre: 'NIST SP 800-12 Rev. 1',
+    desc: 'Introducción a la seguridad de la información, con los conceptos base de la tríada.',
+    url: 'https://csrc.nist.gov/pubs/sp/800/12/r1/final',
+  },
+]
+
+/* ---------- Hooks ---------- */
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('.reveal')
@@ -122,6 +217,20 @@ function useReveal() {
     els.forEach((el) => io.observe(el))
     return () => io.disconnect()
   }, [])
+}
+
+/* ---------- Efecto tilt ---------- */
+function inclinar(e) {
+  const el = e.currentTarget
+  const r = el.getBoundingClientRect()
+  const x = (e.clientX - r.left) / r.width - 0.5
+  const y = (e.clientY - r.top) / r.height - 0.5
+  el.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`)
+  el.style.setProperty('--ry', `${(x * 10).toFixed(2)}deg`)
+}
+function enderezar(e) {
+  e.currentTarget.style.setProperty('--rx', '0deg')
+  e.currentTarget.style.setProperty('--ry', '0deg')
 }
 
 /* ---------- Triángulo interactivo ---------- */
@@ -145,13 +254,6 @@ function Triangulo({ activo, setActivo }) {
           <stop offset="50%" stopColor="#a78bfa" />
           <stop offset="100%" stopColor="#34d399" />
         </linearGradient>
-        <filter id="brillo">
-          <feGaussianBlur stdDeviation="6" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
       </defs>
 
       {lineas.map(([a, b], idx) => (
@@ -240,26 +342,239 @@ function Detalle({ p }) {
   )
 }
 
+/* ---------- Simulador de equilibrio ---------- */
+const TOTAL = 180
+const MENSAJES = {
+  c: 'Acceso muy restringido: los datos están muy protegidos, pero a los usuarios legítimos les cuesta usarlos. La disponibilidad sufre.',
+  i: 'Muchos controles y verificaciones: los datos son muy confiables, pero los procesos se vuelven más lentos y difíciles de usar.',
+  d: 'Acceso rápido y siempre abierto: todo funciona fácil, pero con menos barreras crece el riesgo de filtraciones y cambios indebidos.',
+  eq: 'Equilibrado: ningún pilar se sacrifica del todo. Es el punto de partida habitual; se ajusta según el valor de la información y las necesidades del negocio.',
+}
+
+function redistribuir(valores, clave, nuevo) {
+  const otros = Object.keys(valores).filter((k) => k !== clave)
+  const resto = TOTAL - nuevo
+  const suma = otros.reduce((s, k) => s + valores[k], 0) || 1
+  const res = { ...valores, [clave]: nuevo }
+  otros.forEach((k) => {
+    res[k] = Math.max(0, Math.min(100, Math.round((valores[k] / suma) * resto)))
+  })
+  return res
+}
+
+function Simulador() {
+  const [v, setV] = useState({ c: 60, i: 60, d: 60 })
+  const centro = { x: 200, y: 208 }
+
+  const punto = (id) => {
+    const p = POSICIONES[id]
+    const k = v[id] / 100
+    return `${centro.x + (p.x - centro.x) * k},${centro.y + (p.y - centro.y) * k}`
+  }
+  const poligono = ['c', 'i', 'd'].map(punto).join(' ')
+  const exterior = ['c', 'i', 'd']
+    .map((id) => `${POSICIONES[id].x},${POSICIONES[id].y}`)
+    .join(' ')
+
+  const mayor = ['c', 'i', 'd'].reduce((a, b) => (v[a] >= v[b] ? a : b))
+  const mensaje = v[mayor] >= 75 ? MENSAJES[mayor] : MENSAJES.eq
+
+  return (
+    <div className="sim reveal">
+      <div className="sim-controles">
+        {PILARES.map((p) => (
+          <div key={p.id} className="sim-control" style={{ '--col': p.color }}>
+            <div className="sim-fila">
+              <span className="sim-nombre">
+                <Icono nombre={p.icono} /> {p.nombre}
+              </span>
+              <span className="sim-valor">{v[p.id]}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={v[p.id]}
+              aria-label={`Nivel de ${p.nombre}`}
+              onChange={(e) => setV((prev) => redistribuir(prev, p.id, Number(e.target.value)))}
+            />
+          </div>
+        ))}
+        <button className="btn-sec" onClick={() => setV({ c: 60, i: 60, d: 60 })}>
+          <Icono nombre="reiniciar" /> Restablecer
+        </button>
+      </div>
+
+      <div className="sim-resultado">
+        <svg className="radar" viewBox="0 0 400 340" aria-hidden="true">
+          <polygon className="radar-fondo" points={exterior} />
+          <polygon className="radar-area" points={poligono} />
+          {PILARES.map((p) => {
+            const [x, y] = punto(p.id).split(',')
+            return <circle key={p.id} cx={x} cy={y} r="7" fill={p.color} />
+          })}
+          {PILARES.map((p) => (
+            <text
+              key={p.id}
+              className="radar-letra"
+              x={POSICIONES[p.id].x}
+              y={p.id === 'c' ? POSICIONES[p.id].y - 14 : POSICIONES[p.id].y + 30}
+              textAnchor="middle"
+              fill={p.color}
+            >
+              {p.letra}
+            </text>
+          ))}
+        </svg>
+        <p className="sim-msg" aria-live="polite">{mensaje}</p>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- Quiz ---------- */
+function Quiz() {
+  const [paso, setPaso] = useState(0)
+  const [resp, setResp] = useState(null)
+  const [puntos, setPuntos] = useState(0)
+  const fin = paso >= PREGUNTAS.length
+  const q = PREGUNTAS[paso]
+
+  const elegir = (id) => {
+    if (resp !== null) return
+    setResp(id)
+    if (id === q.correcta) setPuntos((p) => p + 1)
+  }
+  const siguiente = () => {
+    setPaso((n) => n + 1)
+    setResp(null)
+  }
+  const reiniciar = () => {
+    setPaso(0)
+    setResp(null)
+    setPuntos(0)
+  }
+
+  if (fin) {
+    const mensaje =
+      puntos === PREGUNTAS.length
+        ? '¡Excelente! Dominas la tríada.'
+        : puntos >= 2
+        ? 'Muy bien, vas por buen camino.'
+        : 'Repasa los pilares y vuelve a intentarlo.'
+    return (
+      <div className="quiz fin reveal">
+        <p className="quiz-puntaje">
+          {puntos}<span>/{PREGUNTAS.length}</span>
+        </p>
+        <p className="quiz-final">{mensaje}</p>
+        <button className="btn-sec" onClick={reiniciar}>
+          <Icono nombre="reiniciar" /> Intentar de nuevo
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="quiz reveal">
+      <div className="quiz-progreso" aria-hidden="true">
+        {PREGUNTAS.map((_, idx) => (
+          <i key={idx} className={idx < paso ? 'hecho' : idx === paso ? 'actual' : ''} />
+        ))}
+      </div>
+      <p className="quiz-num">Caso {paso + 1} de {PREGUNTAS.length}</p>
+      <h3 className="quiz-caso">{q.caso}</h3>
+      <p className="quiz-pregunta">¿Qué pilar de la tríada se vulneró?</p>
+
+      <div className="quiz-opciones">
+        {PILARES.map((p) => {
+          let estado = ''
+          if (resp !== null) {
+            if (p.id === q.correcta) estado = 'ok'
+            else if (p.id === resp) estado = 'mal'
+            else estado = 'dim'
+          }
+          return (
+            <button
+              key={p.id}
+              className={`op ${estado}`}
+              style={{ '--col': p.color }}
+              onClick={() => elegir(p.id)}
+              disabled={resp !== null}
+            >
+              <Icono nombre={p.icono} />
+              <span>{p.nombre}</span>
+              {estado === 'ok' && <Icono nombre="check" />}
+              {estado === 'mal' && <Icono nombre="cerrar" />}
+            </button>
+          )
+        })}
+      </div>
+
+      {resp !== null && (
+        <div className="quiz-explica" aria-live="polite">
+          <p>
+            <strong>{resp === q.correcta ? 'Correcto. ' : 'No es ese. '}</strong>
+            {q.explicacion}
+          </p>
+          <button className="btn-sec" onClick={siguiente}>
+            {paso + 1 === PREGUNTAS.length ? 'Ver resultado' : 'Siguiente caso'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ---------- App ---------- */
 export default function App() {
   const [activo, setActivo] = useState('c')
+  const [seccion, setSeccion] = useState('')
+  const barraRef = useRef(null)
+  const navRef = useRef(null)
   useReveal()
   const pilar = PILARES.find((p) => p.id === activo)
 
-  const barraRef = useRef(null)
+  // Barra de progreso y aparición del menú (sin re-render)
   useEffect(() => {
     const onScroll = () => {
       const h = document.documentElement.scrollHeight - window.innerHeight
-      if (barraRef.current) barraRef.current.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`
+      if (barraRef.current)
+        barraRef.current.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`
+      if (navRef.current)
+        navRef.current.classList.toggle('visible', window.scrollY > window.innerHeight * 0.5)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Sección activa del menú
+  useEffect(() => {
+    const els = NAV.map(([id]) => document.getElementById(id)).filter(Boolean)
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setSeccion(e.target.id)
+        })
+      },
+      { rootMargin: '-40% 0px -55% 0px' }
+    )
+    els.forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [])
+
   return (
     <>
       <div className="progreso" ref={barraRef} />
+
+      <nav className="nav" ref={navRef} aria-label="Secciones de la página">
+        {NAV.map(([id, nombre]) => (
+          <a key={id} href={`#${id}`} className={seccion === id ? 'on' : ''}>
+            {nombre}
+          </a>
+        ))}
+      </nav>
 
       <div className="fondo" aria-hidden="true">
         <span className="orbe o1" />
@@ -295,7 +610,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* TRIADA INTERACTIVA */}
+      {/* 01 · TRIADA INTERACTIVA */}
       <section id="triada" className="seccion contenedor">
         <div className="titulo-seccion reveal">
           <span className="kicker">01 · Los tres pilares</span>
@@ -326,8 +641,8 @@ export default function App() {
         </div>
       </section>
 
-      {/* CUANDO FALLA */}
-      <section className="seccion contenedor">
+      {/* 02 · CUANDO FALLA */}
+      <section id="fallas" className="seccion contenedor">
         <div className="titulo-seccion reveal">
           <span className="kicker">02 · ¿Qué pasa si falla?</span>
           <h2>Cada pilar roto tiene consecuencias distintas</h2>
@@ -338,6 +653,8 @@ export default function App() {
               key={p.id}
               className="tarjeta reveal"
               style={{ '--col': p.color, transitionDelay: `${idx * 120}ms` }}
+              onMouseMove={inclinar}
+              onMouseLeave={enderezar}
             >
               <span className="tarjeta-letra">{p.letra}</span>
               <div className="tarjeta-icono">
@@ -350,33 +667,112 @@ export default function App() {
         </div>
       </section>
 
-      {/* EQUILIBRIO */}
-      <section className="seccion contenedor">
-        <div className="equilibrio reveal">
+      {/* 03 · EQUILIBRIO + SIMULADOR */}
+      <section id="simulador" className="seccion contenedor">
+        <div className="titulo-seccion reveal">
           <span className="kicker">03 · La clave</span>
-          <img
-            className="ilustracion"
-            src="/triada-3d.webp" width="800" height="800" decoding="async"
-            alt="Ilustración 3D de la tríada: confidencialidad, integridad y disponibilidad"
-            loading="lazy"
-            onError={(e) => (e.currentTarget.style.display = 'none')}
-          />
           <h2>El equilibrio lo es todo</h2>
           <p>
-            Reforzar un pilar de más puede debilitar otro: un sistema súper cifrado y bloqueado es
-            muy confidencial, pero poco disponible. La seguridad real busca el balance según el
-            valor de la información y las necesidades del negocio.
+            Reforzar un pilar de más suele debilitar otro. Mueve los controles y mira cómo se
+            redistribuye la protección.
           </p>
-          <div className="barras">
-            {PILARES.map((p) => (
-              <div key={p.id} className="barra" style={{ '--col': p.color }}>
-                <span>{p.nombre}</span>
-                <div className="barra-fondo">
-                  <i />
+        </div>
+
+        <div className="equilibrio reveal">
+          <img
+            className="ilustracion"
+            src="/triada-3d.png"
+            alt="Ilustración 3D de la tríada: confidencialidad, integridad y disponibilidad"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => (e.currentTarget.style.display = 'none')}
+          />
+          <p>
+            Un sistema súper cifrado y bloqueado es muy confidencial, pero poco disponible. La
+            seguridad real busca el balance según el valor de la información y las necesidades
+            del negocio.
+          </p>
+        </div>
+
+        <Simulador />
+      </section>
+
+      {/* 04 · QUIZ */}
+      <section id="quiz" className="seccion contenedor">
+        <div className="titulo-seccion reveal">
+          <span className="kicker">04 · Ponte a prueba</span>
+          <h2>¿Qué pilar se vulneró?</h2>
+          <p>Tres casos rápidos para comprobar lo aprendido.</p>
+        </div>
+        <Quiz />
+      </section>
+
+      {/* 05 · CASOS REALES */}
+      <section id="casos" className="seccion contenedor">
+        <div className="titulo-seccion reveal">
+          <span className="kicker">05 · Casos reales</span>
+          <h2>Cuando la teoría se volvió noticia</h2>
+          <p>Incidentes conocidos que muestran qué pasa al fallar cada pilar.</p>
+        </div>
+        <ol className="linea">
+          {CASOS.map((c) => {
+            const p = PILARES.find((x) => x.id === c.pilar)
+            return (
+              <li key={c.titulo} className="hito reveal" style={{ '--col': p.color }}>
+                <div className="hito-cab">
+                  <span className="hito-anio">{c.anio}</span>
+                  <span className="hito-tag">{p.nombre}</span>
                 </div>
-              </div>
-            ))}
-          </div>
+                <h3>{c.titulo}</h3>
+                <p>{c.texto}</p>
+              </li>
+            )
+          })}
+        </ol>
+        <p className="nota">
+          Casos de dominio público, resumidos. Verifica cifras y fuentes antes de citarlos.
+        </p>
+      </section>
+
+      {/* 06 · GLOSARIO */}
+      <section id="glosario" className="seccion contenedor">
+        <div className="titulo-seccion reveal">
+          <span className="kicker">06 · Glosario</span>
+          <h2>Términos clave en simple</h2>
+        </div>
+        <div className="glosario reveal">
+          {GLOSARIO.map(([t, d]) => (
+            <details key={t} className="gl-item">
+              <summary>{t}</summary>
+              <p>{d}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* 07 · FUENTES */}
+      <section id="fuentes" className="seccion contenedor">
+        <div className="titulo-seccion reveal">
+          <span className="kicker">07 · Fuentes y referencias</span>
+          <h2>Para seguir profundizando</h2>
+        </div>
+        <div className="fuentes">
+          {FUENTES.map((f, idx) => (
+            <a
+              key={f.nombre}
+              className="fuente reveal"
+              href={f.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ transitionDelay: `${idx * 100}ms` }}
+            >
+              <span className="fuente-cab">
+                <strong>{f.nombre}</strong>
+                <Icono nombre="externo" />
+              </span>
+              <span className="fuente-desc">{f.desc}</span>
+            </a>
+          ))}
         </div>
       </section>
 
