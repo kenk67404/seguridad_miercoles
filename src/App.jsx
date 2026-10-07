@@ -179,7 +179,7 @@ function Triangulo({ activo, setActivo }) {
             aria-label={p.nombre}
           >
             <circle className="pulso" cx={pos.x} cy={pos.y} r="34" />
-            <circle className="base" cx={pos.x} cy={pos.y} r="30" filter={sel ? 'url(#brillo)' : undefined} />
+            <circle className="base" cx={pos.x} cy={pos.y} r="30" />
             <text x={pos.x} y={pos.y + 9} textAnchor="middle" className="letra">{p.letra}</text>
             <text
               x={pos.x}

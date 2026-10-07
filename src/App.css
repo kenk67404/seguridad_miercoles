@@ -480,3 +480,21 @@ h2 {
     animation: none;
   }
 }
+
+/* ---------- Rendimiento (todos los tamaños) ---------- */
+.tri-wrap,
+.tarjeta,
+.etiqueta-hero {
+  backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.05);
+}
+.fondo::after,
+.hero-img {
+  mask-image: none;
+}
+.orbe {
+  animation: none;
+}
+.grad {
+  animation: none;
+}
