@@ -15,8 +15,8 @@
   --c: #38bdf8; /* Confidencialidad */
   --i: #a78bfa; /* Integridad */
   --d: #34d399; /* Disponibilidad */
-  --fuente-titulo: 'Space Grotesk', system-ui, sans-serif;
-  --fuente: 'Inter', system-ui, sans-serif;
+  --fuente-titulo: 'Space Grotesk Variable', system-ui, sans-serif;
+  --fuente: 'Inter Variable', system-ui, sans-serif;
 }
 
 html {
