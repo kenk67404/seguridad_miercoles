@@ -1,13 +1,59 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
+/* ---------- Íconos SVG ---------- */
+const ICONOS = {
+  candado: (
+    <>
+      <rect x="4" y="11" width="16" height="10" rx="2.5" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+      <circle cx="12" cy="16" r="1.2" />
+    </>
+  ),
+  integridad: (
+    <>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 14.5l2 2 4-4.5" />
+    </>
+  ),
+  rayo: <path d="M13 2L4 14h7l-1 8 9-12h-7z" />,
+  alerta: (
+    <>
+      <path d="M10.3 4.2L2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z" />
+      <path d="M12 10v4" />
+      <circle cx="12" cy="17.2" r="0.6" />
+    </>
+  ),
+  escudo: <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />,
+  flecha: <path d="M12 5v14M6 13l6 6 6-6" />,
+}
+
+function Icono({ nombre }) {
+  return (
+    <svg
+      className="icono"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {ICONOS[nombre]}
+    </svg>
+  )
+}
+
+/* ---------- Datos ---------- */
 const PILARES = [
   {
     id: 'c',
     letra: 'C',
     nombre: 'Confidencialidad',
     lema: 'Solo quien debe, ve.',
-    icono: '🔒',
+    icono: 'candado',
     color: '#38bdf8',
     definicion:
       'Garantiza que la información solo sea accesible para las personas, procesos o sistemas autorizados. Protege la privacidad de los datos.',
@@ -23,7 +69,7 @@ const PILARES = [
     letra: 'I',
     nombre: 'Integridad',
     lema: 'Lo que ves es lo que es.',
-    icono: '🧩',
+    icono: 'integridad',
     color: '#a78bfa',
     definicion:
       'Asegura que la información sea exacta, completa y no sea modificada sin autorización, ya sea por error o de forma maliciosa.',
@@ -39,7 +85,7 @@ const PILARES = [
     letra: 'D',
     nombre: 'Disponibilidad',
     lema: 'Aquí cuando la necesitas.',
-    icono: '⚡',
+    icono: 'rayo',
     color: '#34d399',
     definicion:
       'Garantiza que los sistemas y la información estén accesibles para los usuarios autorizados en el momento en que los necesitan.',
@@ -58,6 +104,7 @@ const POSICIONES = {
   d: { x: 340, y: 285 },
 }
 
+/* ---------- Animación al hacer scroll ---------- */
 function useReveal() {
   useEffect(() => {
     const els = document.querySelectorAll('.reveal')
@@ -77,6 +124,7 @@ function useReveal() {
   }, [])
 }
 
+/* ---------- Triángulo interactivo ---------- */
 function Triangulo({ activo, setActivo }) {
   const { c, i, d } = POSICIONES
   const lineas = [
@@ -85,7 +133,12 @@ function Triangulo({ activo, setActivo }) {
     [d, c],
   ]
   return (
-    <svg className="triangulo" viewBox="0 0 400 340" role="img" aria-label="Triángulo de la información: confidencialidad, integridad y disponibilidad">
+    <svg
+      className="triangulo"
+      viewBox="0 0 400 340"
+      role="img"
+      aria-label="Triángulo de la información: confidencialidad, integridad y disponibilidad"
+    >
       <defs>
         <linearGradient id="grad-linea" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#38bdf8" />
@@ -143,11 +196,14 @@ function Triangulo({ activo, setActivo }) {
   )
 }
 
+/* ---------- Panel de detalle ---------- */
 function Detalle({ p }) {
   return (
     <article className="detalle" key={p.id} style={{ '--col': p.color }}>
       <header className="detalle-head">
-        <span className="detalle-icono">{p.icono}</span>
+        <span className="detalle-icono">
+          <Icono nombre={p.icono} />
+        </span>
         <div>
           <h3>{p.nombre}</h3>
           <p className="lema">{p.lema}</p>
@@ -160,7 +216,9 @@ function Detalle({ p }) {
       </div>
       <div className="dos-col">
         <div>
-          <h4>⚠️ Amenazas</h4>
+          <h4 className="h-malo">
+            <Icono nombre="alerta" /> Amenazas
+          </h4>
           <ul className="chips malo">
             {p.amenazas.map((a) => (
               <li key={a}>{a}</li>
@@ -168,7 +226,9 @@ function Detalle({ p }) {
           </ul>
         </div>
         <div>
-          <h4>🛡️ Controles</h4>
+          <h4 className="h-bueno">
+            <Icono nombre="escudo" /> Controles
+          </h4>
           <ul className="chips bueno">
             {p.controles.map((c) => (
               <li key={c}>{c}</li>
@@ -180,13 +240,27 @@ function Detalle({ p }) {
   )
 }
 
+/* ---------- App ---------- */
 export default function App() {
   const [activo, setActivo] = useState('c')
   useReveal()
   const pilar = PILARES.find((p) => p.id === activo)
 
+  const [progreso, setProgreso] = useState(0)
+  useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight
+      setProgreso(h > 0 ? window.scrollY / h : 0)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
     <>
+      <div className="progreso" style={{ transform: `scaleX(${progreso})` }} />
+
       <div className="fondo" aria-hidden="true">
         <span className="orbe o1" />
         <span className="orbe o2" />
@@ -213,7 +287,10 @@ export default function App() {
             ))}
           </ul>
           <a href="#triada" className="btn">
-            Explorar la tríada <span>↓</span>
+            Explorar la tríada
+            <span>
+              <Icono nombre="flecha" />
+            </span>
           </a>
         </div>
       </header>
@@ -243,7 +320,7 @@ export default function App() {
               style={{ '--col': p.color }}
               onClick={() => setActivo(p.id)}
             >
-              {p.icono} {p.nombre}
+              <Icono nombre={p.icono} /> {p.nombre}
             </button>
           ))}
         </div>
@@ -263,7 +340,9 @@ export default function App() {
               style={{ '--col': p.color, transitionDelay: `${idx * 120}ms` }}
             >
               <span className="tarjeta-letra">{p.letra}</span>
-              <div className="tarjeta-icono">{p.icono}</div>
+              <div className="tarjeta-icono">
+                <Icono nombre={p.icono} />
+              </div>
               <h3>Falla en {p.nombre.toLowerCase()}</h3>
               <p>{p.falla}</p>
             </article>
@@ -280,6 +359,7 @@ export default function App() {
             src="/triada-3d.png"
             alt="Ilustración 3D de la tríada: confidencialidad, integridad y disponibilidad"
             loading="lazy"
+            onError={(e) => (e.currentTarget.style.display = 'none')}
           />
           <h2>El equilibrio lo es todo</h2>
           <p>

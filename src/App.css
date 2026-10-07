@@ -3,14 +3,42 @@
   margin-inline: auto;
 }
 
+/* ---------- Íconos ---------- */
+.icono {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+
+/* ---------- Barra de progreso ---------- */
+.progreso {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 50;
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--c), var(--i), var(--d));
+  box-shadow: 0 0 12px var(--i);
+}
+
 /* ---------- Fondo animado ---------- */
 .fondo {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background:
-    radial-gradient(circle at 50% 0%, var(--bg-2), var(--bg) 60%);
+  background: radial-gradient(circle at 50% 0%, var(--bg-2), var(--bg) 60%);
   overflow: hidden;
+}
+.fondo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Si no existe public/textura-circuitos.png, simplemente no se muestra */
+  background: url('/textura-circuitos.png') center / 480px repeat;
+  opacity: 0.12;
+  mix-blend-mode: screen;
 }
 .fondo::after {
   content: '';
@@ -38,15 +66,6 @@
   50% { transform: translate(40px, -50px) scale(1.15); }
 }
 
-.fondo::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('/textura-circuitos.png') center / 480px repeat;
-  opacity: 0.12;
-  mix-blend-mode: screen;
-}
-
 /* ---------- Hero ---------- */
 .hero {
   position: relative;
@@ -59,7 +78,6 @@
 .hero-img {
   position: absolute;
   inset: 0;
-  /* Si añades public/fondo-hero.png se verá aquí; si no existe, se ignora */
   background: url('/fondo-hero.png') center / cover no-repeat;
   opacity: 0.35;
   mask-image: linear-gradient(#000 40%, transparent);
@@ -147,7 +165,10 @@ h1 {
   transition: transform 0.25s, box-shadow 0.25s;
 }
 .btn:hover { transform: translateY(-3px); box-shadow: 0 16px 50px -10px var(--d); }
-.btn span { animation: rebote 1.6s ease-in-out infinite; }
+.btn span {
+  display: inline-flex;
+  animation: rebote 1.6s ease-in-out infinite;
+}
 @keyframes rebote {
   50% { transform: translateY(5px); }
 }
@@ -261,10 +282,12 @@ h2 {
   place-items: center;
   width: 3.4rem;
   height: 3.4rem;
-  font-size: 1.7rem;
   border-radius: 16px;
+  color: var(--col);
   background: color-mix(in srgb, var(--col) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--col) 35%, transparent);
 }
+.detalle-icono .icono { width: 1.7rem; height: 1.7rem; }
 .detalle h3 { font-family: var(--fuente-titulo); font-size: 1.5rem; color: var(--col); }
 .lema { color: var(--texto-suave); font-style: italic; font-size: 0.95rem; }
 .def { margin-bottom: 1rem; }
@@ -278,7 +301,15 @@ h2 {
 }
 .ejemplo strong { color: var(--col); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.dos-col h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+.dos-col h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.h-malo { color: #f87171; }
+.h-bueno { color: var(--col); }
 .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .chips li {
   font-size: 0.78rem;
@@ -300,6 +331,10 @@ h2 {
 }
 .tab {
   flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 0.7rem 1rem;
   border-radius: 14px;
   border: 1px solid var(--borde);
@@ -312,6 +347,7 @@ h2 {
   background: color-mix(in srgb, var(--col) 22%, transparent);
   border-color: var(--col);
 }
+.tab.on .icono { color: var(--col); }
 
 /* ---------- Tarjetas "cuando falla" ---------- */
 .grid-falla { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
@@ -342,7 +378,18 @@ h2 {
   line-height: 1;
   pointer-events: none;
 }
-.tarjeta-icono { font-size: 2rem; margin-bottom: 0.8rem; }
+.tarjeta-icono {
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  margin-bottom: 1rem;
+  border-radius: 14px;
+  color: var(--col);
+  background: color-mix(in srgb, var(--col) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--col) 35%, transparent);
+}
+.tarjeta-icono .icono { width: 1.6rem; height: 1.6rem; }
 .tarjeta h3 { font-family: var(--fuente-titulo); margin-bottom: 0.5rem; color: var(--col); }
 .tarjeta p { color: var(--texto-suave); font-size: 0.95rem; }
 
@@ -355,6 +402,17 @@ h2 {
   border-radius: 32px;
   border: 1px solid var(--borde);
   background: linear-gradient(160deg, rgba(56, 189, 248, 0.08), rgba(167, 139, 250, 0.08), rgba(52, 211, 153, 0.08));
+}
+.ilustracion {
+  display: block;
+  width: min(320px, 70%);
+  margin: 0 auto 1.2rem;
+  border-radius: 24px;
+  filter: drop-shadow(0 20px 40px rgba(167, 139, 250, 0.35));
+  animation: flotar-img 6s ease-in-out infinite;
+}
+@keyframes flotar-img {
+  50% { transform: translateY(-12px); }
 }
 .equilibrio > p { color: var(--texto-suave); margin-bottom: 2rem; }
 .barras { display: grid; gap: 1rem; text-align: left; }
@@ -396,16 +454,4 @@ h2 {
   .dos-col { grid-template-columns: 1fr; }
   .hero { padding-top: 3.5rem; }
   .orbe { filter: blur(70px); }
-}
-
-.ilustracion {
-  display: block;
-  width: min(320px, 70%);
-  margin: 0 auto 1.2rem;
-  border-radius: 24px;
-  filter: drop-shadow(0 20px 40px rgba(167, 139, 250, 0.35));
-  animation: flotar-img 6s ease-in-out infinite;
-}
-@keyframes flotar-img {
-  50% { transform: translateY(-12px); }
 }
