@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 /* ---------- Íconos SVG ---------- */
@@ -246,11 +246,11 @@ export default function App() {
   useReveal()
   const pilar = PILARES.find((p) => p.id === activo)
 
-  const [progreso, setProgreso] = useState(0)
+  const barraRef = useRef(null)
   useEffect(() => {
     const onScroll = () => {
       const h = document.documentElement.scrollHeight - window.innerHeight
-      setProgreso(h > 0 ? window.scrollY / h : 0)
+      if (barraRef.current) barraRef.current.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -259,7 +259,7 @@ export default function App() {
 
   return (
     <>
-      <div className="progreso" style={{ transform: `scaleX(${progreso})` }} />
+      <div className="progreso" ref={barraRef} />
 
       <div className="fondo" aria-hidden="true">
         <span className="orbe o1" />
@@ -356,7 +356,7 @@ export default function App() {
           <span className="kicker">03 · La clave</span>
           <img
             className="ilustracion"
-            src="/triada-3d.png"
+            src="/triada-3d.webp" width="800" height="800" decoding="async"
             alt="Ilustración 3D de la tríada: confidencialidad, integridad y disponibilidad"
             loading="lazy"
             onError={(e) => (e.currentTarget.style.display = 'none')}
